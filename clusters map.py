@@ -120,13 +120,18 @@ ax.set_axis_off()
 plt.axis('equal');
 
 
-# In[9]:
+# In[13]:
 
 
 if (input('Сохранить картинку? y/n ') in ['y', 'Y', 'yes', 'YES', 'да', 'Да']):
     namepng = input('Введите название для сохранения ')
 
-    fig.savefig('%s.png'%(namepng))
+    try:
+        os.stat("clusters")
+    except:
+        os.mkdir("clusters")     
+
+    fig.savefig('clusters/%s.png'%(namepng))
     print("Карта сохранена")
 else:
     print("Не сохранено")
