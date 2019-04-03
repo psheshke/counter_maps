@@ -3,7 +3,6 @@
 
 # In[1]:
 
-
 import pandas as pd
 import numpy as np
 import os
@@ -15,7 +14,7 @@ import matplotlib.patches as mpatches
 from openpyxl import load_workbook
 import xlrd
 
-get_ipython().run_line_magic('matplotlib', 'inline')
+get_ipython().magic('matplotlib inline')
 fp = "maps\RUS_adm1.shp"
 mo_gdf = gpd.read_file(fp)
 
@@ -25,18 +24,15 @@ mo_gdf2 = gpd.read_file(fp)
 
 # In[2]:
 
-
 mo_gdf = mo_gdf.append({'ID_1': 84, 'geometry': mo_gdf2.iloc[10].geometry, 'NAME_1': 'Crimea'}, ignore_index=True)
 
 
 # In[3]:
 
-
 mo_gdf
 
 
 # In[4]:
-
 
 mo_gdf_wm = mo_gdf.to_crs({'init' :'epsg:3575'}) 
 #mo_gdf_wm.plot()
@@ -44,9 +40,7 @@ mo_gdf_wm = mo_gdf.to_crs({'init' :'epsg:3575'})
 mo_gdf_wm.plot(column='ID_1',linewidth=0.5,cmap='Blues', legend=False, figsize=[50,50])
 
 
-# In[6]:
-
-
+# In[37]:
 
 ACTION1_File = load_workbook('map.xlsx', )
 clust = ACTION1_File.get_sheet_by_name('clust')
@@ -76,7 +70,10 @@ for line in clust.iter_rows(row_offset=1):
         
         #legend_dict.update({str(line[1].value): str('#'+rgb+a)})
         
+df.iloc[df.loc[df['Clust'].isin([x['Clust'] for x in settings]) == False].Clust.index, 2] = "".join([str(f) for f in [x['Clust'] for x in settings]])
+        
 df.iloc[df.loc[df['Show on map'] == 0].Clust.index, 2] = ''
+
 for key in settings:
     if key['Label'] == None:
         key['Label'] = ''
@@ -84,8 +81,7 @@ for key in settings:
 mo_gdf["clustrs"] = df.Clust
 
 
-# In[7]:
-
+# In[38]:
 
 patchList = []
 for key in settings:
@@ -99,6 +95,16 @@ bounds = np.arange(len([x['Color'] for x in settings])+1)
 norm = matplotlib.colors.BoundaryNorm(bounds, cmap.N)
 
 fig, ax = plt.subplots(figsize  = (30, 30))
+
+if mo_gdf[mo_gdf["clustrs"]== "".join([str(f) for f in [x['Clust'] for x in settings]])].shape[0] != 0:
+    
+    kwarg3s = {'facecolor': 'white', 'edgecolor': 'black', 'linewidth': 0.5, 'hatch': None}
+
+    clust1 = mo_gdf[mo_gdf["clustrs"]== "".join([str(f) for f in [x['Clust'] for x in settings]])]
+
+    clust1 = clust1.to_crs({'init' :'epsg:3576'})
+
+    clust1.plot(zorder=11, ax=ax, **kwarg3s)
 
 for key in settings:
     
@@ -121,7 +127,6 @@ plt.axis('equal');
 
 
 # In[13]:
-
 
 if (input('Сохранить картинку? y/n ') in ['y', 'Y', 'yes', 'YES', 'да', 'Да']):
     namepng = input('Введите название для сохранения ')
